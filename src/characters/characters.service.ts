@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { Character } from './entities/character.entity';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class CharactersService {
+  private chars: Character[] = [];
+
   create(createCharacterDto: CreateCharacterDto) {
-    return 'This action adds a new character';
+    const char: Character = {id: randomUUID(), ...createCharacterDto, birthday: new Date(createCharacterDto.birthday)}
+    this.chars.push(char)
+    return char;
   }
 
   findAll() {
-    return `This action returns all characters`;
+    return this.chars;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} character`;
+  findOne(id: string) {
+    const foundChar = this.chars.filter((c) => c.id === id);
+    if (foundChar.length <= 0)
+      throw new NotFoundException('Product not found');
+    return foundChar[0];
   }
 
   update(id: number, updateCharacterDto: UpdateCharacterDto) {

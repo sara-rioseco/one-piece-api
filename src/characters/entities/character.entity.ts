@@ -1,4 +1,5 @@
 export class Character {
+  id: string;
   en_name: string;
   jp_name: string;
   romaji_name: string;
@@ -8,21 +9,40 @@ export class Character {
   };
   affiliations: string[];
   occupations: string[];
-  origin: string;
-  residence: string[];
-  alias: string;
-  epiteth: string[];
+  origin: { 
+    sea: string; 
+    island: string; 
+    country: string };
+  residence: { 
+    name: string, 
+    active: boolean}[];
+  alias: string[];
+  epiteth: {
+    en: string;
+    jp: string;
+    romaji: string;
+  }[];
   status: 'alive' | 'dead' | 'unknown';
-  age: number;
+  age: {
+    yrs: number;
+    when: string;
+  }[];
   birthday: Date;
-  height: number;
+  height: {
+    cm: number;
+    when: string;
+  }[];
   blood_type: string;
-  bounty: number;
+  bounty: { 
+    amt: number;
+    active: boolean;
+  }[];
   devil_fruit: {
-    en_name: string;
-    jp_name: string;
+    en: string;
+    jp: string;
+    romaji: string;
     meaning: string;
     type: string;
     subtype?: string;
-  }[]
+  }[];
 }
