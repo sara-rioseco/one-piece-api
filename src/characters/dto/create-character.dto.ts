@@ -1,14 +1,33 @@
-import { IsString, IsNumber, IsNotEmpty, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsDateString, IsObject, IsNotEmptyObject, ValidateNested, IsPositive, IsArray } from 'class-validator';
+import { Status } from '../entities/status.enum';
+
+class Debut {
+  @IsNotEmpty()
+  @IsNumber()
+  chapter: number;
+  @IsNotEmpty()
+  @IsNumber()
+  episode: number;
+}
 
 export class CreateCharacterDto {
+  @IsNotEmpty()
+  @IsString()
   en_name: string;
+  @IsNotEmpty()
+  @IsString()
   jp_name: string;
+  @IsNotEmpty()
+  @IsString()
   romaji_name: string;
-  debut: {
-    chapter: number;
-    episode: number;
-  };
+  @IsNotEmptyObject()
+  @ValidateNested()
+  debut: Debut;
+  @IsNotEmpty()
+  @IsArray({each: true})
   affiliations: string[];
+  @IsNotEmpty()
+  @IsArray({each: true})
   occupations: string[];
   origin: { 
     sea: string; 
@@ -16,14 +35,17 @@ export class CreateCharacterDto {
     country: string };
   residence: { 
     name: string, 
-    active: boolean}[];
+    active: boolean
+  }[];
+  @IsNotEmpty()
+  @IsArray({each: true})
   alias: string[];
   epiteth: {
     en: string;
     jp: string;
     romaji: string;
   }[];
-  status: 'alive' | 'dead' | 'unknown';
+  status: Status;
   age: {
     yrs: number;
     when: string;

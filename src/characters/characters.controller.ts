@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from
 import { CharactersService } from './characters.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { UUID } from 'crypto';
 
 @Controller('characters')
 export class CharactersController {
@@ -18,17 +19,17 @@ export class CharactersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.charactersService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCharacterDto: UpdateCharacterDto) {
-    return this.charactersService.update(+id, updateCharacterDto);
+  update(@Param('id', ParseUUIDPipe) id: UUID, @Body() updateCharacterDto: UpdateCharacterDto) {
+    return this.charactersService.update(id, updateCharacterDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.charactersService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: UUID) {
+    return this.charactersService.remove(id);
   }
 }

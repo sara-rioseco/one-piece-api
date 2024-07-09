@@ -1,5 +1,8 @@
+import { UUID } from "crypto";
+import { Status } from "./status.enum";
+
 export class Character {
-  id: string;
+  id: UUID;
   en_name: string;
   jp_name: string;
   romaji_name: string;
@@ -22,7 +25,7 @@ export class Character {
     jp: string;
     romaji: string;
   }[];
-  status: 'alive' | 'dead' | 'unknown';
+  status: Status;
   age: {
     yrs: number;
     when: string;
