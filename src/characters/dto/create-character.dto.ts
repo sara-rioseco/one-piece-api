@@ -1,71 +1,70 @@
-import { IsString, IsNumber, IsNotEmpty, IsDateString, IsObject, IsNotEmptyObject, ValidateNested, IsPositive, IsArray } from 'class-validator';
-import { Status } from '../entities/status.enum';
-
-class Debut {
-  @IsNotEmpty()
-  @IsNumber()
-  chapter: number;
-  @IsNotEmpty()
-  @IsNumber()
-  episode: number;
-}
+import { IsString, IsNumber, IsNotEmpty, IsDateString, IsNotEmptyObject, IsEnum, IsObject } from 'class-validator';
+import { Age, Bounty, Debut, DevilFruit, Epiteth, Height, Origin, Residence, Status,  } from '../entities';
 
 export class CreateCharacterDto {
   @IsNotEmpty()
   @IsString()
   en_name: string;
+
   @IsNotEmpty()
   @IsString()
   jp_name: string;
+
   @IsNotEmpty()
   @IsString()
   romaji_name: string;
+
   @IsNotEmptyObject()
-  @ValidateNested()
   debut: Debut;
+
   @IsNotEmpty()
-  @IsArray({each: true})
+  @IsString({each: true})
   affiliations: string[];
+
   @IsNotEmpty()
-  @IsArray({each: true})
+  @IsString({each: true})
   occupations: string[];
-  origin: { 
-    sea: string; 
-    island: string; 
-    country: string };
-  residence: { 
-    name: string, 
-    active: boolean
-  }[];
+
+  @IsNotEmptyObject()
+  origin: Origin;
+
   @IsNotEmpty()
-  @IsArray({each: true})
+  @IsObject({each: true})
+  residence: Residence[];
+
+  @IsNotEmpty()
+  @IsString({each: true})
   alias: string[];
-  epiteth: {
-    en: string;
-    jp: string;
-    romaji: string;
-  }[];
+
+  @IsNotEmpty()
+  @IsObject({each: true})
+  epiteth: Epiteth[];
+
+  @IsNotEmpty()
+  @IsEnum(Status, {groups: ['alive', 'dead', 'unknown']})
   status: Status;
-  age: {
-    yrs: number;
-    when: string;
-  }[];
+
+  @IsNotEmpty()
+  @IsObject({each: true})
+  age: Age[];
+
+  @IsNotEmpty()
+  @IsDateString()
   birthday: string;
-  height: {
-    cm: number;
-    when: string;
-  }[];
+
+  @IsNotEmpty()
+  @IsObject({each: true})
+  height: Height[];
+
+  @IsNotEmpty()
+  @IsString()
   blood_type: string;
-  bounty: { 
-    amt: number;
-    active: boolean;
-  }[];
-  devil_fruit: {
-    en: string;
-    jp: string;
-    romaji: string;
-    meaning: string;
-    type: string;
-    subtype?: string;
-  }[];
+
+  @IsNotEmpty()
+  @IsObject({each: true})
+  bounty: Bounty[];
+  
+  @IsNotEmpty()
+  @IsObject({each: true})
+  devil_fruit: DevilFruit[];
 }
