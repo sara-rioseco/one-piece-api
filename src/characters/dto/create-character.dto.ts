@@ -1,5 +1,6 @@
-import { IsString, IsNumber, IsNotEmpty, IsDateString, IsNotEmptyObject, IsEnum, IsObject } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsDateString, IsNotEmptyObject, IsEnum, IsObject, ValidateNested, IsArray } from 'class-validator';
 import { Age, Bounty, Debut, DevilFruit, Epiteth, Height, Origin, Residence, Status,  } from '../entities';
+import { Type } from 'class-transformer';
 
 export class CreateCharacterDto {
   @IsNotEmpty()
@@ -15,56 +16,62 @@ export class CreateCharacterDto {
   romaji_name: string;
 
   @IsNotEmptyObject()
+  @ValidateNested({each: true})
+  @Type(()=> Debut)
   debut: Debut;
 
-  @IsNotEmpty()
   @IsString({each: true})
   affiliations: string[];
 
-  @IsNotEmpty()
   @IsString({each: true})
   occupations: string[];
 
   @IsNotEmptyObject()
+  @ValidateNested({each: true})
+  @Type(()=> Origin)
   origin: Origin;
 
-  @IsNotEmpty()
-  @IsObject({each: true})
-  residence: Residence[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Residence)
+  residence: Residence[]; // HERE
 
-  @IsNotEmpty()
   @IsString({each: true})
   alias: string[];
 
-  @IsNotEmpty()
-  @IsObject({each: true})
-  epiteth: Epiteth[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Epiteth)
+  epiteth: Epiteth[];  // HERE
 
-  @IsNotEmpty()
   @IsEnum(Status, {groups: ['alive', 'dead', 'unknown']})
   status: Status;
 
-  @IsNotEmpty()
-  @IsObject({each: true})
-  age: Age[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Age)
+  age: Age[];  // HERE
 
   @IsNotEmpty()
   @IsDateString()
   birthday: string;
 
-  @IsNotEmpty()
-  @IsObject({each: true})
-  height: Height[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Height)
+  height: Height[]; // HERE
 
   @IsNotEmpty()
   @IsString()
   blood_type: string;
 
-  @IsNotEmpty()
-  @IsObject({each: true})
-  bounty: Bounty[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Bounty,)
+  bounty: Bounty[]; // HERE
   
-  @IsNotEmpty()
-  @IsObject({each: true})
-  devil_fruit: DevilFruit[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> DevilFruit)
+  devil_fruit: DevilFruit[]; // HERE
 }
