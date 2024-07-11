@@ -1,7 +1,10 @@
 import { UUID } from "crypto";
 import { Status } from "./status.enum";
+import { Entity } from "typeorm";
 
+@Entity()
 export class Character {
+  
   id: UUID;
   en_name: string;
   jp_name: string;
