@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsNotEmpty, IsDateString, IsNotEmptyObject, IsEnum, IsObject, ValidateNested, IsArray } from 'class-validator';
-import { Age, Bounty, Debut, DevilFruit, Epiteth, Height, Origin, Residence, Status,  } from '../entities';
+import { IsString, IsNumber, IsNotEmpty, IsDateString, IsNotEmptyObject, IsEnum, IsObject, ValidateNested, IsArray, IsOptional, IsDate } from 'class-validator';
+import { Affiliation, Age, Alias, Bounty, Debut, DevilFruit, Epiteth, Height, Occupation, Origin, Residence, Status,  } from '../entities';
 import { Type } from 'class-transformer';
 
 export class CreateCharacterDto {
@@ -20,11 +20,15 @@ export class CreateCharacterDto {
   @Type(()=> Debut)
   debut: Debut;
 
-  @IsString({each: true})
-  affiliations: string[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Affiliation)
+  affiliations: Affiliation[];
 
-  @IsString({each: true})
-  occupations: string[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Occupation)
+  occupations: Occupation[];
 
   @IsNotEmptyObject()
   @ValidateNested({each: true})
@@ -34,15 +38,17 @@ export class CreateCharacterDto {
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> Residence)
-  residence: Residence[]; // HERE
+  residences: Residence[];
 
-  @IsString({each: true})
-  alias: string[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(()=> Alias)
+  alias: Alias[];
 
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> Epiteth)
-  epiteth: Epiteth[];  // HERE
+  epiteths: Epiteth[];  // HERE
 
   @IsEnum(Status, {groups: ['alive', 'dead', 'unknown']})
   status: Status;
@@ -50,7 +56,7 @@ export class CreateCharacterDto {
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> Age)
-  age: Age[];  // HERE
+  ages: Age[];  // HERE
 
   @IsNotEmpty()
   @IsDateString()
@@ -59,19 +65,27 @@ export class CreateCharacterDto {
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> Height)
-  height: Height[]; // HERE
+  heights: Height[]; // HERE
 
   @IsNotEmpty()
   @IsString()
-  blood_type: string;
+  bloodType: string;
 
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> Bounty,)
-  bounty: Bounty[]; // HERE
+  bounties: Bounty[];
   
   @IsArray()
   @ValidateNested({each: true})
   @Type(()=> DevilFruit)
-  devil_fruit: DevilFruit[]; // HERE
+  devilFruits: DevilFruit[];
+
+  @IsDate()
+  @IsOptional()
+  createdDate: Date;
+
+  @IsDate()
+  @IsOptional()
+  lastUpdatedDate: Date;
 }

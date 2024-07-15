@@ -9,7 +9,7 @@ import { TypeOrmConfigService } from './db';
 @Module({
   imports: [
     CharactersModule,
-    ConfigModule.forRoot({ isGlobal: true, cache: true}),
+    ConfigModule.forRoot({ isGlobal: true, cache: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
   ],
   controllers: [AppController],

@@ -8,3 +8,6 @@ export * from './epiteth.entity';
 export * from './height.entity';
 export * from './origin.entity';
 export * from './residence.entity';
+export * from './alias.entity';
+export * from './affiliation.entity';
+export * from './occupation.entity';

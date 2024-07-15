@@ -20,7 +20,7 @@ export class CharactersController {
 
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: UUID) {
-    return this.charactersService.findOne(id);
+    return this.charactersService.getById(id);
   }
 
   @Patch(':id')
