@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -8,12 +7,17 @@ import { randomUUID, UUID } from 'node:crypto';
 import { hash, genSalt } from 'bcrypt';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './entities';
-
-const users: User[] = [];
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
   private readonly rounds: number = parseInt(process.env.SALT_ROUNDS!);
+  
 
   async create(createUserDto: CreateUserDto) {
     const user: User = { id: randomUUID(), ...createUserDto };
@@ -21,7 +25,8 @@ export class UsersService {
       const salt = await genSalt(this.rounds);
       const hashed = await hash(user.password!, salt);
       user.password = hashed;
-      users.push(user);
+      const newUser = this.usersRepository.create(user);
+      this.usersRepository.save(newUser);
       delete user.password;
       return user;
     } catch (err) {
@@ -29,60 +34,72 @@ export class UsersService {
     }
   }
 
-  findAll() {
-    const resultUsers = structuredClone(users);
-    return resultUsers.map((u) => {
-      delete u.password;
-      return u;
-    });
+  async findAll() {
+    try {
+      const users = await this.usersRepository.find();
+      const cleanedUsers = structuredClone(users).map((user) => {
+        delete user.password;
+        return user;
+      });
+      return cleanedUsers;
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
-  findOne(id: UUID) {
-    const found = users.filter((u) => u.id === id);
-    if (found.length < 1) throw new NotFoundException('User not found');
-    const user = structuredClone(found[0]);
-    delete user.password;
-    return user;
+  async findOne(id: UUID) {
+    try {
+      const user = await this.usersRepository.findOneBy({ id });
+      if (!user) throw new NotFoundException('User not found');
+      const cleanedUser = structuredClone(user);
+      delete cleanedUser.password;
+      return cleanedUser;
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
-  findByEmail(email: string) {
-    const found = users.filter((u) => u.email === email);
-    if (found.length < 1) throw new NotFoundException('User not found');
-    return found[0];
+  async findByEmail(email: string) {
+    try {
+      const user = await this.usersRepository.findOneBy({ email });
+      if (!user) throw new NotFoundException('User not found');
+      const cleanedUser = structuredClone(user);
+      delete cleanedUser.password;
+      return cleanedUser;
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
   async update(id: UUID, updateUserDto: UpdateUserDto) {
-    const userIndex = users.findIndex((u) => u.id === id);
-    if (userIndex < 0) throw new NotFoundException('User not found');
-    if (
-      !updateUserDto ||
-      (!updateUserDto.name &&
-        !updateUserDto.surname &&
-        !updateUserDto.email &&
-        !updateUserDto.password &&
-        !updateUserDto.role)
-    ) {
-      throw new BadRequestException('At least one user field must be provided');
-    }
-    if (Object.keys(updateUserDto).includes('password')) {
-      try {
-        const salt = await genSalt(this.rounds);
-        const hashed = await hash(updateUserDto.password!, salt);
-        updateUserDto.password = hashed;
-        const user = { ...users[userIndex], ...updateUserDto };
-        users.splice(userIndex, 1, user);
-        delete user.password;
-        return user;
-      } catch (err) {
-        throw new InternalServerErrorException(err.message);
-      }
+    try {
+      const user = await this.findOne(id);
+      if (!user) throw new NotFoundException('Character not found');
+      const updateResult = await this.usersRepository.update(
+        { id },
+        updateUserDto,
+      );
+      if (updateResult.affected! <= 0)
+        throw new InternalServerErrorException('Error updating character');
+      const updatedChar = await this.findOne(id);
+      return updatedChar;
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
     }
   }
 
-  remove(id: UUID) {
-    const userIndex = users.findIndex((u) => u.id === id);
-    if (userIndex < 0) throw new NotFoundException('User not found');
-    users.splice(userIndex, 1);
-    return 'User deleted successfully';
+  async remove(id: UUID) {
+    try {
+      const user = await this.findOne(id);
+      if (!user) throw new NotFoundException('Character not found');
+      const deleteResult = await this.usersRepository.delete({
+        id: user.id,
+      });
+      if (deleteResult.affected! <= 0)
+        throw new InternalServerErrorException('Error deleting character');
+      return { message: 'User deleted successfully' };
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 }
