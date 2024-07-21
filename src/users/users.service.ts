@@ -63,9 +63,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneBy({ email });
       if (!user) throw new NotFoundException('User not found');
-      const cleanedUser = structuredClone(user);
-      delete cleanedUser.password;
-      return cleanedUser;
+      return user
     } catch (err) {
       throw new InternalServerErrorException(err.message);
     }
