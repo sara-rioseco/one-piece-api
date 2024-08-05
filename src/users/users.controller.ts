@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,9 +8,13 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
+  Request,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { Request as ExpressRequest } from 'express';
+import { CreateUserDto, PartialUserDto, UpdateUserDto } from './dto';
 import { UsersService } from './users.service';
 import { UUID } from 'node:crypto';
 import { Role } from './entities';
@@ -20,38 +25,48 @@ import { JwtGuard, RolesGuard } from 'src/auth/guards';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Post()
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RolesGuard)
-  @Post()
+  @UseInterceptors(ClassSerializerInterceptor)
   create(@Body() createUserDto: CreateUserDto) {
     if (!createUserDto.role) createUserDto.role = Role.USER;
     return this.usersService.create(createUserDto);
   }
 
+  @Get()
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RolesGuard)
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @UseInterceptors(ClassSerializerInterceptor)
+  findAll(@Query('search') search?: string) {
+    return this.usersService.findAll(search);
   }
 
-  @Roles(Role.ADMIN)
   @Get(':id')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UseInterceptors(ClassSerializerInterceptor)
   findOne(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.usersService.findOne(id);
   }
 
-  @Roles(Role.ADMIN)
   @Patch(':id')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  @UseInterceptors(ClassSerializerInterceptor)
   update(
     @Param('id', ParseUUIDPipe) id: UUID,
     @Body() updateUserDto: UpdateUserDto,
+    @Request() req: { request: ExpressRequest; user: PartialUserDto },
   ) {
-    return this.usersService.update(id, updateUserDto);
+    const { user } = req;
+    return this.usersService.update(id, updateUserDto, user);
   }
 
-  @Roles(Role.ADMIN)
   @Delete(':id')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @UseInterceptors(ClassSerializerInterceptor)
   remove(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.usersService.remove(id);
   }

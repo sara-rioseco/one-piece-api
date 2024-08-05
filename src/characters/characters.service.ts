@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCharacterDto, UpdateCharacterDto } from './dto';
@@ -18,9 +23,10 @@ import {
   Residence,
 } from './entities';
 
-
 @Injectable()
 export class CharactersService {
+  private logger = new Logger(CharactersService.name);
+
   constructor(
     @InjectRepository(Character)
     private readonly charactersRepository: Repository<Character>,
@@ -55,25 +61,63 @@ export class CharactersService {
       birthday: new Date(createCharacterDto.birthday),
     };
     const newChar = await this.charactersRepository.save(char);
-    const affiliations = await this.affiliationRepository.findBy({ char_id: newChar.char_id });
+    const affiliations = await this.affiliationRepository.findBy({
+      char_id: newChar.char_id,
+    });
     const ages = await this.ageRepository.findBy({ char_id: newChar.char_id });
-    const alias = await this.aliasRepository.findBy({ char_id: newChar.char_id });
-    const bounties = await this.bountyRepository.findBy({ char_id: newChar.char_id });
-    const debut = await this.debutRepository.findOneBy({ char_id: newChar.char_id }) as Debut
-    const epiteths = await this.epitethRepository.findBy({ char_id: newChar.char_id });
-    const devilFruits = await this.devilFruitRepository.findBy({ char_id: newChar.char_id });
-    const heights = await this.heightRepository.findBy({ char_id: newChar.char_id });
-    const occupations = await this.occupationRepository.findBy({ char_id: newChar.char_id });
-    const origin = await this.OriginRepository.findOneBy({ char_id: newChar.char_id }) as Origin
-    const residences = await this.residenceRepository.findBy({ char_id: newChar.char_id });
-    const birthday = char.birthday.toISOString()
-    const charDTO : CreateCharacterDto = {...char, affiliations, birthday, ages, alias, bounties, debut, epiteths, devilFruits, heights, occupations, origin, residences}
-    return charDTO
+    const alias = await this.aliasRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const bounties = await this.bountyRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const debut = (await this.debutRepository.findOneBy({
+      char_id: newChar.char_id,
+    })) as Debut;
+    const epiteths = await this.epitethRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const devilFruits = await this.devilFruitRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const heights = await this.heightRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const occupations = await this.occupationRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const origin = (await this.OriginRepository.findOneBy({
+      char_id: newChar.char_id,
+    })) as Origin;
+    const residences = await this.residenceRepository.findBy({
+      char_id: newChar.char_id,
+    });
+    const birthday = char.birthday.toISOString();
+    const charDTO: CreateCharacterDto = {
+      ...char,
+      affiliations,
+      birthday,
+      ages,
+      alias,
+      bounties,
+      debut,
+      epiteths,
+      devilFruits,
+      heights,
+      occupations,
+      origin,
+      residences,
+    };
+    return charDTO;
   }
 
   async findAll() {
-    const chars = await this.charactersRepository.find();
-    return chars;
+    const chars: Character[] = await this.charactersRepository.find();
+    return Promise.all(
+      chars.map(async (char) => {
+        return this.getById(char.char_id);
+      }),
+    );
   }
 
   async findOne(id: UUID) {
@@ -84,20 +128,40 @@ export class CharactersService {
 
   async getById(id: UUID) {
     const char = await this.findOne(id);
-    const affiliations = await this.affiliationRepository.findBy({ char_id: id });
+    const affiliations = await this.affiliationRepository.findBy({
+      char_id: id,
+    });
     const ages = await this.ageRepository.findBy({ char_id: id });
     const alias = await this.aliasRepository.findBy({ char_id: id });
     const bounties = await this.bountyRepository.findBy({ char_id: id });
-    const debut = await this.debutRepository.findOneBy({ char_id: id }) as Debut
+    const debut = (await this.debutRepository.findOneBy({
+      char_id: id,
+    })) as Debut;
     const epiteths = await this.epitethRepository.findBy({ char_id: id });
     const devilFruits = await this.devilFruitRepository.findBy({ char_id: id });
     const heights = await this.heightRepository.findBy({ char_id: id });
     const occupations = await this.occupationRepository.findBy({ char_id: id });
-    const origin = await this.OriginRepository.findOneBy({ char_id: id }) as Origin
+    const origin = (await this.OriginRepository.findOneBy({
+      char_id: id,
+    })) as Origin;
     const residences = await this.residenceRepository.findBy({ char_id: id });
-    const birthday = char.birthday.toISOString()
-    const charDTO : CreateCharacterDto = {...char, affiliations, birthday, ages, alias, bounties, debut, epiteths, devilFruits, heights, occupations, origin, residences}
-    return charDTO
+    const birthday = char.birthday.toISOString();
+    const charDTO: CreateCharacterDto = {
+      ...char,
+      affiliations,
+      birthday,
+      ages,
+      alias,
+      bounties,
+      debut,
+      epiteths,
+      devilFruits,
+      heights,
+      occupations,
+      origin,
+      residences,
+    };
+    return charDTO;
   }
 
   async update(id: UUID, updateCharacterDto: UpdateCharacterDto) {
@@ -131,7 +195,8 @@ export class CharactersService {
       const deleteResult = await this.charactersRepository.delete({
         char_id: char.char_id,
       });
-      if (deleteResult.affected! <= 0) throw new InternalServerErrorException('Error deleting character');
+      if (deleteResult.affected! <= 0)
+        throw new InternalServerErrorException('Error deleting character');
       return { message: 'Character deleted successfully' };
     } catch (err) {
       throw err;

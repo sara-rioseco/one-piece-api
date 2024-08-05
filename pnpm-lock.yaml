@@ -44,9 +44,6 @@ importers:
       mysql2:
         specifier: ^3.10.2
         version: 3.10.2
-      reflect-metadata:
-        specifier: ^0.2.0
-        version: 0.2.2
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1

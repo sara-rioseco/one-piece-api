@@ -3,15 +3,18 @@ import { Role } from './role.enum';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
+} from 'typeorm'
+  ;
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: UUID;
+  id: string;
 
   @Column()
   name: string;
@@ -22,13 +25,17 @@ export class User {
   @Column()
   email: string;
 
+  @Exclude()
   @Column()
-  password?: string;
+  password: string;
+
+  @Column()
+  country: string;
 
   @Column({
-    type: "enum",
+    type: 'enum',
     enum: Role,
-    default: Role.USER
+    default: Role.USER,
   })
   role: Role;
 
@@ -37,4 +44,7 @@ export class User {
 
   @UpdateDateColumn()
   lastUpdatedDate?: Date;
+
+  @DeleteDateColumn()
+  deletedDate?: Date;
 }

@@ -8,15 +8,14 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   public createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
       type: 'mysql',
-      host: 'localhost',
+      host: process.env.HOST,
       port: Number(process.env.PORT) || 3306,
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
-      database: 'one_piece_db',
+      database: process.env.MYSQL_DATABASE,
       entities: [Affiliation, Age, Alias, Bounty, Debut, DevilFruit, Epiteth, Height, Occupation, Origin, Residence],
       autoLoadEntities: true,
-      synchronize: true,
-      logging: true
+      synchronize: true
     };
   }
 }

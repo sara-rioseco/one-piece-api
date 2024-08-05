@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { CharactersService } from './characters.service';
 import { CreateCharacterDto, UpdateCharacterDto  } from './dto';
 import { UUID } from 'crypto';
@@ -10,30 +10,32 @@ import { JwtGuard, RolesGuard } from 'src/auth/guards';
 export class CharactersController {
   constructor(private readonly charactersService: CharactersService) {}
 
+  @Post()
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RolesGuard)
-  @Post()
   create(@Body() createCharacterDto: CreateCharacterDto) {
     return this.charactersService.create(createCharacterDto);
   }
 
-  @Roles(Role.ADMIN, Role.USER)
-  @UseGuards(JwtGuard, RolesGuard)
   @Get()
+  @Roles(Role.ADMIN, Role.USER)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(JwtGuard, RolesGuard)
   findAll() {
     return this.charactersService.findAll();
   }
 
+  @Get(':id')
   @Roles(Role.ADMIN, Role.USER)
   @UseGuards(JwtGuard, RolesGuard)
-  @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   findOne(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.charactersService.getById(id);
   }
 
+  @Patch(':id')
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RolesGuard)
-  @Patch(':id')
   update(@Param('id', ParseUUIDPipe) id: UUID, @Body() updateCharacterDto: UpdateCharacterDto) {
     return this.charactersService.update(id, updateCharacterDto);
   }

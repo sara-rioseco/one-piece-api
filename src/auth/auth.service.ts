@@ -2,42 +2,61 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dto';
+import { CreateUserDto, PartialUserDto } from 'src/users/dto';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwt: JwtService,
   ) {}
 
   signup(createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    try {
+      return this.usersService.create(createUserDto);
+    } catch (err) {
+      throw err;
+    }
   }
 
-  async login(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user || !user.password)
-      throw new BadRequestException('Invalid user data');
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) throw new ForbiddenException('Invalid credentials');
-    return {
-      message: 'Login successful',
-      token: this.jwt.sign(
-        {
-          id: user.id,
-          role: user.role,
-        },
-        {
-          secret: process.env.JWT_SECRET,
-        },
-      ),
-    };
+  async login(user: PartialUserDto) {
+    try {
+      if (!user.password || !user.email) {
+        throw new BadRequestException('Email and password are required');
+      }
+      const foundUser = await this.usersService.findByEmail(user.email);
+      const isPasswordValid = await bcrypt.compare(
+        user.password,
+        foundUser.password!,
+      );
+      if (!isPasswordValid) {
+        throw new ForbiddenException('Invalid credentials');
+      }
+      this.logger.log(`User successfully logged in`);
+      return {
+        message: 'Login successful',
+        token: this.jwt.sign(
+          {
+            id: foundUser.id,
+            role: foundUser.role,
+            name: foundUser.name,
+            surname: foundUser.surname,
+          },
+          {
+            secret: process.env.JWT_SECRET,
+          },
+        ),
+      };
+    } catch (err) {
+      throw err;
+    }
   }
 
   validateToken(token: string) {

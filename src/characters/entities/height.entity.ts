@@ -2,12 +2,14 @@ import { IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID } from "class-vali
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Character } from './character.entity';
 import { UUID } from "node:crypto";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class Height {
   @PrimaryGeneratedColumn('uuid')
   @IsOptional()
   @IsUUID()
+  @Exclude()
   id: string;
   
   @Column()
@@ -21,6 +23,7 @@ export class Height {
   when: string;
 
   @Column({ nullable: true })
+  @Exclude()
   char_id: UUID;
 
   @ManyToOne(()=>Character, character => character.heights)

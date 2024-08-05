@@ -2,12 +2,14 @@ import { IsNotEmpty, IsString, IsOptional, IsUUID } from "class-validator";
 import { UUID } from "crypto";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Character } from "./character.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class DevilFruit {
   @PrimaryGeneratedColumn('uuid')
   @IsOptional()
   @IsUUID()
+  @Exclude()
   fruit_id: string;
 
   @Column()
@@ -42,6 +44,7 @@ export class DevilFruit {
   subtype?: string;
 
   @Column({ nullable: true })
+  @Exclude()
   char_id: UUID;
 
   @ManyToOne(() => Character, character => character.devilFruits)

@@ -2,12 +2,14 @@ import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from "
 import { Character } from "./character.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UUID } from "node:crypto";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class Age {
   @PrimaryGeneratedColumn('uuid')
   @IsOptional()
   @IsUUID()
+  @Exclude()
   id: string;
   
   @Column()
@@ -21,6 +23,7 @@ export class Age {
   when: string;
 
   @Column({ nullable: true })
+  @Exclude()
   char_id: UUID;
 
   @ManyToOne(() => Character, character => character.ages)
