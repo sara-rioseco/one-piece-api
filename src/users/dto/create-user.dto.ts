@@ -5,7 +5,6 @@ import {
   IsEnum,
   IsStrongPassword,
   Length,
-  Validate,
 } from 'class-validator';
 import { Role } from '../entities';
 import { IsUnique } from 'src/auth/decorators';
@@ -25,7 +24,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   @Length(1, 100)
-  @Validate(IsUnique, ['user', 'email'])
+  // @IsUnique({tableName: 'User', column: 'email'})
   email: string;
 
   @IsNotEmpty()

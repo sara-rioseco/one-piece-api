@@ -5,18 +5,19 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { EntityManager } from 'typeorm';
+import { IsUniqueInterface } from './is-unique.decorator';
 
 @ValidatorConstraint({ name: 'IsUniqueConstraint', async: true })
 @Injectable()
-export class IsUnique implements ValidatorConstraintInterface {
-  private logger = new Logger(IsUnique.name);
+export class IsUniqueConstraint implements ValidatorConstraintInterface {
+  private logger = new Logger(IsUniqueConstraint.name);
 
   constructor(private readonly entityManager: EntityManager) {}
 
   async validate(value: any, args?: ValidationArguments): Promise<boolean> {
-    const [tableName, column] = args?.constraints as string[];
+    const { tableName, column } : IsUniqueInterface = args?.constraints[0] ;
 
-    this.logger.debug(tableName, column, this.entityManager);
+    this.logger.debug(tableName, column);
 
     const dataExist = await this.entityManager
       .getRepository(tableName)

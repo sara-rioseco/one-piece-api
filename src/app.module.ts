@@ -9,7 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { throttlerOptions, throttlerProvider } from './config';
-import { IsUnique } from './auth/decorators/';
+import { IsUniqueConstraint } from './auth/decorators/';
 
 @Module({
   imports: [
@@ -21,6 +21,6 @@ import { IsUnique } from './auth/decorators/';
     CharactersModule
   ],
   controllers: [AppController],
-  providers: [AppService, throttlerProvider, IsUnique],
+  providers: [AppService, throttlerProvider, IsUniqueConstraint],
 })
 export class AppModule {}

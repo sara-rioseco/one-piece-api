@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -25,6 +26,8 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     try {
       const user: User = { id: randomUUID(), ...createUserDto };
+      const userExists = await this.usersRepository.existsBy({email: user.email})
+      if (userExists) throw new BadRequestException('User already exists.')
       const salt = await genSalt(this.rounds);
       const hashed = await hash(user.password!, salt);
       user.password = hashed;
